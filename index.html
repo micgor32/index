@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>.config - Michal Gorlas </title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg:          #6D9EB3;
+      --dialog-bg:   #E0E0E0;
+      --border:      #E0E0E0;
+      --text:        #000000;
+      --dim:         #000000;
+      --cyan:        #003d36;
+      --yellow:      #5c3600;
+      --red:         #8b0000;
+      --hl-bg:       #6D9EB3;
+      --hl-fg:       #ffffff;
+      --btn-bg:      #6D9EB3;
+      --btn-fg:      #ffffff;
+      --btn-hl-bg:   #6D9EB3;
+      --font:        'Courier New', Courier, 'Lucida Console', monospace;
+    }
+
+    html {
+      scroll-behavior: auto;
+    }
+
+    body {
+      background-color: var(--bg);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px 12px;
+      background-size: 4px 4px;
+    }
+
+    #main {
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section:target {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background-color: var(--bg);
+      background-size: 4px 4px;
+      overflow-y: auto;
+      padding: 20px 12px;
+    }
+
+    .mc-win {
+      width: 100%;
+      max-width: 800px;
+      background-color: var(--dialog-bg);
+      color: var(--text);
+      box-shadow: 4px 4px 0 #000000;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mc-title {
+      background-color: var(--border);
+      color: var(--bg);
+      text-align: center;
+      padding: 1px 10px;
+      font-weight: bold;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mc-hint {
+      padding: 4px 12px;
+      color: var(--dim);
+      border-bottom: 1px solid #20b0a2;
+      font-size: 12px;
+    }
+
+    .mc-hint kbd {
+      color: #003d36;
+      font-family: var(--font);
+      font-size: inherit;
+    }
+
+    .mc-body {
+      padding: 4px 0 8px;
+      flex: 1;
+    }
+
+    .mc-btns {
+      border-top: 1px solid #20b0a2;
+      padding: 5px 8px 6px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .mc-btn {
+      display: inline-block;
+      background-color: var(--btn-bg);
+      color: var(--btn-fg);
+      padding: 0 8px;
+      text-decoration: none;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .mc-btn:hover,
+    .mc-btn:focus {
+      background-color: var(--btn-hl-bg);
+      color: var(--btn-fg);
+      outline: none;
+    }
+
+    .mc-btn-dead {
+      display: inline-block;
+      background-color: var(--dim);
+      color: #ffffff;
+      padding: 0 8px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: bold;
+      cursor: default;
+      user-select: none;
+    }
+
+    .mc-legend {
+      border-top: 1px solid #20b0a2;
+      padding: 3px 12px;
+      font-size: 12px;
+      color: var(--dim);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0 14px;
+    }
+
+    .mc-legend span { white-space: nowrap; }
+
+    .sp { height: 6px; display: block; }
+    .sp2 { height: 3px; display: block; }
+
+    .mc-hr {
+      border: none;
+      border-top: 1px solid #20b0a2;
+      margin: 3px 0;
+    }
+
+    .mc-h {
+      padding: 2px 14px;
+      color: var(--cyan);
+      font-weight: bold;
+    }
+
+    .mc-cmt {
+      padding: 2px 14px;
+      color: var(--bg);
+      font-style: italic;
+    }
+
+    .mc-link {
+      display: block;
+      padding: 1px 14px;
+      color: var(--text);
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mc-link:hover,
+    .mc-link:focus {
+      background-color: var(--hl-bg);
+      color: var(--hl-fg);
+      outline: none;
+    }
+
+    .mc-link:hover .arr,
+    .mc-link:focus .arr {
+      color: var(--hl-fg);
+    }
+
+    .arr { color: var(--cyan); }
+    .mc-dead {
+      display: block;
+      padding: 1px 14px;
+      color: var(--dim);
+      cursor: default;
+    }
+
+    a.mc-dead:focus {
+      background-color: var(--hl-bg);
+      color: #aaaaaa;
+      outline: none;
+    }
+
+    .mc-row {
+      padding: 1px 14px;
+      color: var(--text);
+    }
+
+    .mc-cfg {
+      display: flex;
+      gap: 0;
+      padding: 1px 14px;
+      flex-wrap: wrap;
+    }
+
+    .cfg-v {
+      color: var(--text);
+      white-space: pre;
+      min-width: 0;
+    }
+
+    .cfg-d {
+      color: var(--dim);
+    }
+
+    .mc-bool {
+      padding: 1px 14px;
+    }
+
+    .chk-on  { color: var(--yellow); font-weight: bold; }
+    .chk-off { color: var(--dim); }
+    .chk-wip { color: #7a4800; font-weight: bold; }
+    .chk-lbl { color: var(--text); }
+
+    .mc-tri {
+      padding: 1px 14px;
+    }
+
+    .tri-on  { color: var(--yellow); font-weight: bold; }
+    .tri-m   { color: #7a4800; font-weight: bold; }
+    .tri-off { color: var(--dim); }
+
+    .mc-job-title {
+      padding: 2px 14px;
+      color: var(--yellow);
+      font-weight: bold;
+    }
+
+    .mc-job-meta {
+      padding: 0 14px 0 22px;
+      color: var(--cyan);
+      font-size: 12px;
+    }
+
+    .mc-job-bullet {
+      padding: 0 14px 0 26px;
+      color: var(--text);
+    }
+
+    .mc-job-bullet::before {
+      content: "+ ";
+      color: var(--dim);
+    }
+
+    .mc-sym {
+      margin-top: 8px;
+      padding: 6px 14px;
+      border-top: 1px solid #20b0a2;
+      color: var(--dim);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .mc-sym .sym-key { color: var(--cyan); }
+
+    .mc-warn {
+      padding: 2px 14px;
+      color: var(--yellow);
+      font-weight: bold;
+    }
+
+    .mc-err {
+      padding: 2px 14px;
+      color: var(--red);
+      font-weight: bold;
+    }
+
+    @media (max-width: 580px) {
+      body { font-size: 12px; padding: 8px 6px; }
+      .section:target { padding: 8px 6px; }
+      .mc-btns { gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<a id="top" aria-hidden="true" style="position:absolute;top:0;left:0"></a>
+
+<div id="main">
+  <div class="mc-win">
+
+    <div class="mc-title">Michal Gorlas</div>
+
+    <div class="mc-hint">
+      Arrow keys navigate the menu.&nbsp; <kbd>&lt;Enter&gt;</kbd> selects submenus <kbd>---&gt;</kbd>.&nbsp;
+      Press <kbd>&lt;Esc&gt;&lt;Esc&gt;</kbd> to exit, <kbd>&lt;?&gt;</kbd> for Help, <kbd>&lt;/&gt;</kbd> to search.
+    </div>
+
+    <div class="mc-body">
+      <span class="sp"></span>
+      <div class="mc-cmt">    &#42;&#42;&#42; Michal Gorlas&#8212; Open Source Firmware/Linux Engineer &#42;&#42;&#42;</div>
+      <span class="sp"></span>
+
+      <a href="#about"        class="mc-link" tabindex="0">    About Me                           <span class="arr">---&gt;</span></a>
+      <a href="#experience"   class="mc-link" tabindex="0">    Experience                         <span class="arr">---&gt;</span></a>
+      <a href="#projects"     class="mc-link" tabindex="0">    Projects                           <span class="arr">---&gt;</span></a>
+      <a href="#publications" class="mc-link" tabindex="0">    Publications                       <span class="arr">---&gt;</span></a>
+      <a href="#blog"         class="mc-dead" tabindex="0" style="cursor:pointer">    Blog (WRITING_MOTIVATION not set)  <span style="color:var(--dim)">----</span></a>
+
+      <span class="sp"></span>
+    </div>
+
+    <div class="mc-legend">
+      <span><span style="color:var(--yellow)">[*]</span> built&#8209;in</span>
+      <span><span style="color:var(--dim)">[ ]</span> excluded</span>
+      <span><span style="color:#7a4800">&lt;*&gt;</span> active</span>
+      <span><span style="color:#7a4800">&lt;M&gt;</span> in&nbsp;progress</span>
+      <span><span style="color:var(--dim)">----</span> unavailable</span>
+    </div>
+
+    <div class="mc-btns">
+      <span class="mc-btn-dead">&lt;Select&gt;</span>
+      <span class="mc-btn-dead">&lt;Exit&gt;</span>
+      <a href="#about" class="mc-btn">&lt;Help&gt;</a>
+    </div>
+
+  </div>
+</div>
+
+<div id="about" class="section">
+  <div class="mc-win">
+
+    <div class="mc-title">About Me</div>
+    <div class="mc-hint">
+      Personal information, contact details and skill set.
+    </div>
+
+    <div class="mc-body">
+      <span class="sp"></span>
+      <div class="mc-h">--- Identity ---</div>
+      <span class="sp2"></span>
+
+      <div class="mc-cfg">
+        <span class="cfg-v">(Michal Gorlas)</span>
+        <span class="cfg-d">Full Name</span>
+      </div>
+      <div class="mc-cfg">
+        <span class="cfg-v">(Open Source Firmware/Linux Engineer)</span>
+        <span class="cfg-d">Current Role</span>
+      </div>
+      <div class="mc-cfg">
+        <span class="cfg-v">(Bochum, Germany)</span>
+        <span class="cfg-d">Location</span>
+      </div>
+
+      <span class="sp"></span>
+      <hr class="mc-hr">
+      <div class="mc-h">--- Contact ---</div>
+      <span class="sp2"></span>
+
+      <div class="mc-cfg">
+        <span class="cfg-v">(michal[AT]gorlas.dev)&or;(michal.gorlas[AT]9elements.com)</span>
+      </div>
+      <div class="mc-cfg">
+        <span class="cfg-v"><a href="https://github.com/micgor32">(github.com/micgor32)</a></span>
+      </div>
+      <div class="mc-cfg">
+        <span class="cfg-v"><a href="https://linkedin.com/in/michal-gorlas-student">(linkedin.com/in/michal-gorlas-student)</a></span>
+      </div>
+
+      <span class="sp"></span>
+      <hr class="mc-hr">
+      <div class="mc-h">--- Summary ---</div>
+      <span class="sp2"></span>
+
+      <div class="mc-row">  Computer Science student with interest in Operating Systems,</div>
+      <div class="mc-row">  Firmware, and Compilers. My day-job concentrates around Linux</div>
+      <div class="mc-row">  kernel/userland on embedded platforms, and open source firmware.</div>
+
+      <span class="sp"></span>
+      <hr class="mc-hr">
+      <div class="mc-h">--- Enabled Features ---</div>
+      <span class="sp2"></span>
+
+      <div class="mc-bool"><span class="chk-on">[*]</span> <span class="chk-lbl">Systems Programming (C, Go)</span></div>
+      <div class="mc-bool"><span class="chk-on">[*]</span> <span class="chk-lbl">Linux Kernel</span></div>
+      <div class="mc-bool"><span class="chk-on">[*]</span> <span class="chk-lbl">coreboot</span></div>
+      <div class="mc-bool"><span class="chk-on">[*]</span> <span class="chk-lbl">u-boot</span></div>
+      <div class="mc-bool"><span class="chk-on">[*]</span> <span class="chk-lbl">Python, Nix, Shell scripting</span></div>
+      <div class="mc-bool"><span class="chk-wip">&lt;M&gt;</span> <span class="chk-lbl">Rust</span></div>
+
+      <span class="sp"></span>
+    </div>
+
+    <div class="mc-legend">
+      <span><span style="color:var(--yellow)">[*]</span> built&#8209;in</span>
+      <span><span style="color:var(--dim)">[ ]</span> excluded</span>
+      <span><span style="color:#7a4800">&lt;*&gt;</span> active</span>
+      <span><span style="color:#7a4800">&lt;M&gt;</span> in&nbsp;progress</span>
+      <span><span style="color:var(--dim)">----</span> unavailable</span>
+    </div>
+
+    <div class="mc-btns">
+      <span class="mc-btn-dead">&lt;Select&gt;</span>
+      <a href="#top" class="mc-btn">&lt;Exit&gt;</a>
+      <span class="mc-btn-dead">&lt;Help&gt;</span>
+    </div>
+
+  </div>
+</div>
+
+<div id="experience" class="section">
+  <div class="mc-win">
+
+    <div class="mc-title">Experience</div>
+    <div class="mc-hint">
+      Work history and education.&nbsp;
+      <span style="color:var(--yellow)">[*]</span> = current &nbsp;
+      <span style="color:var(--dim)">[ ]</span> = past position
+    </div>
+
+    <div class="mc-body">
+      <span class="sp"></span>
+      <div class="mc-cmt">    &#42;&#42;&#42; Current Position &#42;&#42;&#42;</div>
+      <span class="sp2"></span>
+
+      <div class="mc-job-title">[*] Open Source Firmware Engineer &#8212; 9elements GmbH</div>
+      <div class="mc-job-meta">    2025 &#8212; Present &nbsp;|&nbsp; Bochum, Germany</div>
+
+      <span class="sp"></span>
+      <hr class="mc-hr">
+      <div class="mc-cmt">    &#42;&#42;&#42; Previous Positions &#42;&#42;&#42;</div>
+      <span class="sp2"></span>
+
+      <div class="mc-job-title">[ ] System Administrator &#8212; Free Software Foundation Europe</div>
+      <div class="mc-job-meta">    September 2023 &#8212; June 2025 &nbsp;|&nbsp; Berlin, Germany</div>
+      <div class="mc-job-bullet">Infrastructure management</div>
+      <div class="mc-job-bullet">Lead mailing lists migration from Mailman 2 to Mailman 3</div>
+      <div class="mc-job-bullet">Fixed issues in legacy code</div>
+
+      <span class="sp"></span>
+
+      <div class="mc-job-title">[ ] Software Engineer Intern &#8212; Free Software Foundation Europe</div>
+      <div class="mc-job-meta">    June 2023 &#8212; September 2023 &nbsp;|&nbsp; Berlin, Germany</div>
+      <div class="mc-job-bullet">Worked on TEDective project</div>
+
+      <span class="sp"></span>
+      <hr class="mc-hr">
+      <div class="mc-h">--- Education ---</div>
+      <span class="sp2"></span>
+
+      <div class="mc-job-title">[*] M.Sc. Computer Science &#8212; University of Twente</div>
+      <div class="mc-job-meta">    2026 &#8212; Present &nbsp;|&nbsp; Enschede, Netherlands</div>
+
+      <span class="sp"></span>
+
+      
+      <div class="mc-job-title">[ ] Pre-Master Computer Science &#8212; University of Twente</div>
+      <div class="mc-job-meta">    August 2025 &#8212; February 2026 |&nbsp; Enschede, Netherlands</div>
+      <div class="mc-job-bullet">Grade: 7.5/10 </div>
+
+
+      <span class="sp"></span>
+
+      <div class="mc-job-title">[ ] B.Sc. Software Engineering &#8212; Fontys Venlo</div>
+      <div class="mc-job-meta">    2022 &#8212; 2026 &nbsp;|&nbsp; Venlo, Netherlands</div>
+      <div class="mc-job-bullet">Focus: Cyber Security</div>
+      <div class="mc-job-bullet">Grade: 8/10 </div>
+
+      <span class="sp"></span>
+    </div>
+
+    <div class="mc-legend">
+      <span><span style="color:var(--yellow)">[*]</span> built&#8209;in</span>
+      <span><span style="color:var(--dim)">[ ]</span> excluded</span>
+      <span><span style="color:#7a4800">&lt;*&gt;</span> active</span>
+      <span><span style="color:#7a4800">&lt;M&gt;</span> in&nbsp;progress</span>
+      <span><span style="color:var(--dim)">----</span> unavailable</span>
+    </div>
+
+    <div class="mc-btns">
+      <span class="mc-btn-dead">&lt;Select&gt;</span>
+      <a href="#top" class="mc-btn">&lt;Exit&gt;</a>
+      <span class="mc-btn-dead">&lt;Help&gt;</span>
+    </div>
+
+  </div>
+</div>
+
+<div id="projects" class="section">
+  <div class="mc-win">
+
+    <div class="mc-title">Projects</div>
+    <div class="mc-hint">
+      Open-source and personal projects.&nbsp;
+      <span style="color:var(--yellow)">&lt;*&gt;</span> active &nbsp;
+      <span style="color:#7a4800">&lt;M&gt;</span> in progress &nbsp;
+      <span style="color:var(--dim)">&lt; &gt;</span> archived
+    </div>
+
+    <div class="mc-body">
+      <span class="sp"></span>
+      <div class="mc-h">--- Systems &amp; Kernel ---</div>
+      <span class="sp2"></span>
+
+      <div class="mc-tri"><span class="tri-on">&lt;*&gt;</span> <strong><a href="https://github.com/9elements/LinuxBootSMM">LinuxBootSMM</a></strong> &#8212; Transitioning SMM Ownership to Linuxboot</div>
+      <div class="mc-job-meta">    C, Go &nbsp;|&nbsp; BSD 2-Clause </div>
+      <div class="mc-job-bullet">Adds support for MM payload when Linux is used as coreboot's payload.</div>
+      <div class="mc-job-bullet">The main idea is to delegate higher-level SMM functions to the payload, limiting the coreboot's System Management Mode (SMM) related responsibilities to the minimum of basic SMM setup.</div>
+      <div class="mc-job-bullet">Done by implementing PoC kernel driver which loads a blob with SMI handler to the shared buffer, from which it is copied to SMRAM.</div>
+
+      <span class="sp"></span>
+
+      <div class="mc-tri"><span class="tri-on">&lt;*&gt;</span> <strong><a href="https://github.com/micgor32/go-msr">go-msr</a></strong> &#8212; Go library for R/W on Intel MSR.</div>
+      <div class="mc-job-meta">    Go &nbsp;|&nbsp; Apache-2.0</div>
+      <div class="mc-job-bullet">Continuation/rewrite of gomsr.</div>
+      <div class="mc-job-bullet">Makes more use of std library than its predecessor.</div>
+      <div class="mc-job-bullet">Guarantees safe handling of fd's for library users.</div>
+      <div class="mc-job-bullet">u-root styled integration tests.</div>
+
+      <span class="sp"></span>
+      <hr class="mc-hr">
+      <div class="mc-h">--- Tools &amp; Applications ---</div>
+      <span class="sp2"></span>
+
+      <div class="mc-tri"><span class="tri-m">&lt;*&gt;</span> <strong><a href="https://github.com/micgor32/go-doas">go-doas</a></strong> &#8212; Go implementation of OpenDoas</div>
+      <div class="mc-job-meta">    Go &nbsp;|&nbsp; ISC License</div>
+      <div class="mc-job-bullet">A minimal replacement for the venerable sudo.</div>
+      <div class="mc-job-bullet">go-doas is a minimal Go implementation of OpenDoas port.</div>
+      <div class="mc-job-bullet">Authentication is based on PAM, implemented using Go PAM wrapper.</div>
+
+      <span class="sp"></span>
+
+      <div class="mc-tri"><span class="tri-on">&lt;*&gt;</span> <strong><a href="https://docs.tedective.org/">TEDective</a></strong> &#8212; </div>
+      <div class="mc-job-meta">    Python, GraphQL&nbsp;|&nbsp; AGPL v3</div>
+      <div class="mc-job-bullet">Aims to make European public procurement data from Tenders Electronic Daily (TED) explorable for non-experts.</div>
+      <div class="mc-job-bullet">Worked on migration to graph database (TerminusDB and KuzuDB), implementing eForms in ETL, and API endpoints.</div>
+
+      <span class="sp"></span>
+    </div>
+
+    <div class="mc-legend">
+      <span><span style="color:var(--yellow)">[*]</span> built&#8209;in</span>
+      <span><span style="color:var(--dim)">[ ]</span> excluded</span>
+      <span><span style="color:#7a4800">&lt;*&gt;</span> active</span>
+      <span><span style="color:#7a4800">&lt;M&gt;</span> in&nbsp;progress</span>
+      <span><span style="color:var(--dim)">----</span> unavailable</span>
+    </div>
+
+    <div class="mc-btns">
+      <span class="mc-btn-dead">&lt;Select&gt;</span>
+      <a href="#top" class="mc-btn">&lt;Exit&gt;</a>
+      <span class="mc-btn-dead">&lt;Help&gt;</span>
+    </div>
+
+  </div>
+</div>
+
+<div id="publications" class="section">
+  <div class="mc-win">
+
+    <div class="mc-title">Publications</div>
+    <div class="mc-hint">
+      Conference papers, and journal articles (hopefully sometime in the future).
+    </div>
+
+    <div class="mc-body">
+      <span class="sp"></span>
+      <div class="mc-h">--- Conference Papers ---</div>
+      <span class="sp2"></span>
+
+      <div class="mc-job-title">[*] &#8220;QuishDec: Structural Anomaly-Based Detection of QR Code Phishing Attack&#8221;</div>
+      <div class="mc-job-meta">    NWO ICT.OPEN2026</div>
+      <div class="mc-job-meta">    Authors: Michal Gorlas, Thijs Besseling, Dipti K. Sarmah</div>
+
+      <span class="sp"></span>
+
+      <div class="mc-job-title">[*] &#8220;Enhancing Fairness in Skin Lesion Diagnosis Using Synthetic Image Augmentation for Underrepresented Skin Tones&#8221;</div>
+      <div class="mc-job-meta">    NWO ICT.OPEN2026</div>
+      <div class="mc-job-meta">    Authors: L. Ferger-Andrews, M.Gorlas, M.Woznica, M.Kajdanowicz, N. Adamavicius, R. Raumanns</div>
+
+      <span class="sp"></span>
+    </div>
+
+    <div class="mc-legend">
+      <span><span style="color:var(--yellow)">[*]</span> built&#8209;in</span>
+      <span><span style="color:var(--dim)">[ ]</span> excluded</span>
+      <span><span style="color:#7a4800">&lt;*&gt;</span> active</span>
+      <span><span style="color:#7a4800">&lt;M&gt;</span> in&nbsp;progress</span>
+      <span><span style="color:var(--dim)">----</span> unavailable</span>
+    </div>
+
+    <div class="mc-btns">
+      <span class="mc-btn-dead">&lt;Select&gt;</span>
+      <a href="#top" class="mc-btn">&lt;Exit&gt;</a>
+      <span class="mc-btn-dead">&lt;Help&gt;</span>
+    </div>
+
+  </div>
+</div>
+
+<div id="blog" class="section">
+  <div class="mc-win">
+
+    <div class="mc-title">Blog</div>
+    <div class="mc-hint">
+      Symbol information and dependency graph.
+    </div>
+
+    <div class="mc-body">
+      <span class="sp"></span>
+
+      <div class="mc-warn">WARNING: unmet direct dependencies detected for BLOG_ENABLED</div>
+      <span class="sp2"></span>
+      <div class="mc-row">  Depends on: WRITING_MOTIVATION &amp;&amp; FREE_TIME &amp;&amp; INTERESTING_TOPICS</div>
+      <div class="mc-row">  However, the following direct dependencies are not satisfied:</div>
+      <span class="sp2"></span>
+      <div class="mc-err">  - WRITING_MOTIVATION   [=n]</div>
+      <div class="mc-err">  - FREE_TIME            [=n]</div>
+      <div class="mc-row" style="color:var(--yellow)">  - INTERESTING_TOPICS   [=y] &#10003;</div>
+
+      <span class="sp"></span>
+      <hr class="mc-hr">
+      <div class="mc-h">--- Symbol: BLOG_ENABLED ---</div>
+      <span class="sp2"></span>
+
+      <div class="mc-cfg">
+        <span class="cfg-v">Type:     </span>
+        <span class="cfg-d">bool</span>
+      </div>
+      <div class="mc-cfg">
+        <span class="cfg-v">Prompt:   </span>
+        <span class="cfg-d">"Enable blog section"</span>
+      </div>
+      <div class="mc-cfg">
+        <span class="cfg-v">Value:    </span>
+        <span class="cfg-d">n</span>
+      </div>
+      <div class="mc-cfg">
+        <span class="cfg-v">Defined:  </span>
+        <span class="cfg-d">portfolio.config:73</span>
+      </div>
+      <div class="mc-cfg">
+        <span class="cfg-v">Depends:  </span>
+        <span class="cfg-d">WRITING_MOTIVATION &amp;&amp; FREE_TIME &amp;&amp; INTERESTING_TOPICS</span>
+      </div>
+
+      <span class="sp"></span>
+      <hr class="mc-hr">
+      <div class="mc-h">--- Location ---</div>
+      <span class="sp2"></span>
+
+      <div class="mc-row">  -&gt; Portfolio (PORTFOLIO_ENABLED [=y])</div>
+      <div class="mc-row">    -&gt; Blog (BLOG_ENABLED <span style="color:var(--red)">[=n]</span>)</div>
+
+      <span class="sp"></span>
+      <hr class="mc-hr">
+      <div class="mc-h">--- Help ---</div>
+      <span class="sp2"></span>
+
+      <div class="mc-row">  This option enables the blog section of the page.</div>
+      <div class="mc-row">  Future posts will cover discoveries across random projects,</div>
+      <div class="mc-row">  whatever projects I currently work on, and the occasional rant about</div>
+      <div class="mc-row">  stuff that annoys me in system programming.</div>
+      <span class="sp2"></span>
+      <div class="mc-row" style="color:var(--dim)">  To enable: first satisfy WRITING_MOTIVATION and FREE_TIME.</div>
+      <div class="mc-row" style="color:var(--dim)">  Check back later. Patches welcome.</div>
+
+      <div class="mc-sym">
+        <span class="sym-key">CONFIG_BLOG_ENABLED</span> is not set<br>
+        <span class="sym-key">CONFIG_INTERESTING_TOPICS</span>=y<br>
+        <span class="sym-key">CONFIG_WRITING_MOTIVATION</span> is not set<br>
+        <span class="sym-key">CONFIG_FREE_TIME</span> is not set
+      </div>
+
+      <span class="sp"></span>
+    </div>
+
+    <div class="mc-legend">
+      <span><span style="color:var(--yellow)">[*]</span> built&#8209;in</span>
+      <span><span style="color:var(--dim)">[ ]</span> excluded</span>
+      <span><span style="color:#7a4800">&lt;*&gt;</span> active</span>
+      <span><span style="color:#7a4800">&lt;M&gt;</span> in&nbsp;progress</span>
+      <span><span style="color:var(--dim)">----</span> unavailable</span>
+    </div>
+
+    <div class="mc-btns">
+      <span class="mc-btn-dead">&lt;Select&gt;</span>
+      <a href="#top" class="mc-btn">&lt;Exit&gt;</a>
+      <span class="mc-btn-dead">&lt;Help&gt;</span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/*
+  Disclaimer: I do not know JS :D This part is fully slop coded.
+ */
+(function () {
+  function currentScreen() {
+    var hash = location.hash;
+    if (hash && hash !== '#' && hash !== '#top') {
+      var el = document.querySelector(hash);
+      if (el && el.classList.contains('section')) return el;
+    }
+    return document.getElementById('main');
+  }
+
+  function navItems(screen) {
+    return Array.from(screen.querySelectorAll('a[href]'));
+  }
+
+  function focusFirst(screen) {
+    var list = navItems(screen);
+    if (list.length) list[0].focus();
+  }
+
+  document.addEventListener('keydown', function (e) {
+    var screen = currentScreen();
+    var list   = navItems(screen);
+    if (!list.length) return;
+
+    var cur = list.indexOf(document.activeElement);
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      var next;
+      if (cur === -1) {
+        next = e.key === 'ArrowDown' ? 0 : list.length - 1;
+      } else {
+        next = e.key === 'ArrowDown'
+          ? (cur + 1) % list.length
+          : (cur - 1 + list.length) % list.length;
+      }
+      list[next].focus();
+    }
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      location.hash = '#top';
+    }
+  });
+
+  window.addEventListener('hashchange', function () {
+    setTimeout(function () { focusFirst(currentScreen()); }, 20);
+  });
+
+  window.addEventListener('load', function () {
+    focusFirst(currentScreen());
+  });
+}());
+</script>
+</body>
+</html>
