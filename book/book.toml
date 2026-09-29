@@ -1,0 +1,8 @@
+[book]
+title = "Michal's Collection of Random Thoughts"
+authors = ["Michal Gorlas"]
+language = "en"
+src = "src"
+
+[output.html]
+site-url = "/blog/"

@@ -1,0 +1,49 @@
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+   contents: read
+   pages: write
+   id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install mdBook
+        run: |
+          tag=$(curl 'https://api.github.com/repos/rust-lang/mdbook/releases/latest' | jq -r '.tag_name')
+          url="https://github.com/rust-lang/mdbook/releases/download/${tag}/mdbook-${tag}-x86_64-unknown-linux-gnu.tar.gz"
+          mkdir bin
+          curl -sSL $url | tar -xz --directory=bin
+          echo "$(pwd)/bin" >> $GITHUB_PATH
+
+      - name: Build book
+        run: mdbook build book
+
+      - name: Assemble site
+        run: |
+          test -f book/book/index.html || { echo "mdbook produced no index.html"; exit 1; }
+          mkdir -p _site/blog
+          cp index.html _site/
+          cp CNAME _site/
+          cp -r book/book/. _site/blog/
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
